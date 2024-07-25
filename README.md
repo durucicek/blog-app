@@ -2,5 +2,8 @@ A forum app made by following the https://flask.palletsprojects.com/en/3.0.x/tut
 
 Made with Flask and SQLAlchemy.
 
-Added like/unlike feature, changed the SQLight database to implement SQLAlchemy. 
-Implemented extra tests using pytests. Implemented SQLAlchemy database migrations using Flask-Migrate
+Added features and changes to the tutorial:
+Like/unlike feature,
+Implemented extra tests using pytests. 
+Changed the SQLight database to implement SQLAlchemy. 
+Implemented SQLAlchemy database migrations using Flask-Migrate
