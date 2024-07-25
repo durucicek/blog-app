@@ -3,7 +3,8 @@ import tempfile
 
 import pytest
 from flaskr import create_app
-from flaskr.database import get_db, init_db
+from flaskr.database import db
+
 
 with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
     _data_sql = f.read().decode('utf8')
@@ -11,21 +12,16 @@ with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
 
 @pytest.fixture
 def app():
-    db_fd, db_path = tempfile.mkstemp()
-
-    app = create_app({
-        'TESTING': True,
-        'DATABASE': db_path,
-    })
+    app = create_app(
+        config_mode='testing',
+        )
 
     with app.app_context():
-        init_db()
-        get_db().executescript(_data_sql)
+        db.create_all()
+        conn= db.session().connection().connection
+        conn.executescript(_data_sql)
 
     yield app
-
-    os.close(db_fd)
-    os.unlink(db_path)
 
 
 @pytest.fixture
@@ -41,12 +37,18 @@ class AuthActions(object):
     def __init__(self, client):
         self._client = client
 
+    def register(self, username='test', password='test'):
+        return self._client.post(
+            '/auth/register',
+            data={'username': username, 'password': password}
+        )
+
     def login(self, username='test', password='test'):
         return self._client.post(
             '/auth/login',
             data={'username': username, 'password': password}
         )
-
+    
     def logout(self):
         return self._client.get('/auth/logout')
 

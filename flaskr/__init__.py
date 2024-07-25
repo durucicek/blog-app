@@ -16,4 +16,4 @@ def create_app(config_mode='development'):
 
     app.add_url_rule('/', endpoint='index')
 
-    return 
+    return app
