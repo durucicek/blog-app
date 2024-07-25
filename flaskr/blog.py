@@ -15,11 +15,9 @@ def index():
     
     liked_posts = []
     if g.user:
-        liked_posts = LikedPosts.query.filter_by(user_id=g.user.id).all()
-        liked_posts = [liked.post_id for liked in liked_posts]
-
         stmt = db.select(LikedPosts).where(LikedPosts.user_id == g.user.id)
         liked_posts = db.session.execute(stmt).scalars().all()
+        liked_posts = [liked.post_id for liked in liked_posts]
 
     return render_template('blog/index.html', posts=posts, liked_posts=liked_posts)
 
