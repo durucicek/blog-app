@@ -53,7 +53,7 @@ def login():
 
         if error is None:
             session.clear()
-            session['user_id'] = user.id
+            session['id'] = user.id
             return redirect(url_for('index'))
 
         flash(error)
@@ -62,7 +62,7 @@ def login():
 
 @bp.before_app_request
 def load_logged_in_user():
-    user_id = session.get('user_id')
+    user_id = session.get('id')
 
     if user_id is None:
         g.user = None

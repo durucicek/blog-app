@@ -10,16 +10,18 @@ bp = Blueprint('blog', __name__)
 
 @bp.route('/')
 def index():
-    stmt = db.select(Post).join(User, Post.author_id == User.id).order_by(Post.created.desc())
-    posts = db.session.execute(stmt).scalars().all()
-    
-    liked_posts = []
-    if g.user:
-        stmt = db.select(LikedPosts).where(LikedPosts.user_id == g.user.id)
-        liked_posts = db.session.execute(stmt).scalars().all()
-        liked_posts = [liked.post_id for liked in liked_posts]
+    user_id = g.get('id')
+    if user_id:
+        user = User.query.get(user_id)
+        if not user:
+            return render_template('error.html', message="User not found"), 404
+        posts = user.posts  
+        liked_posts_ids = [liked.post_id for liked in user.liked_posts]
+    else:
+        posts = Post.query.order_by(Post.created.desc()).all()
+        liked_posts_ids = []
 
-    return render_template('blog/index.html', posts=posts, liked_posts=liked_posts)
+    return render_template('blog/index.html', posts=posts, liked_posts=liked_posts_ids)
 
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
