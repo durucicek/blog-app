@@ -1,6 +1,4 @@
 import os
-import tempfile
-
 import pytest
 from flaskr import create_app
 from flaskr.database import db
