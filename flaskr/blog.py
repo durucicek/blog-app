@@ -10,16 +10,19 @@ bp = Blueprint('blog', __name__)
 
 @bp.route('/')
 def index():
-    posts = Post.query.order_by(Post.created.desc()).all()
+    #posts = Post.query.order_by(Post.created.desc()).all() ||
+    stmt = db.select(Post).order_by(Post.created.desc())
+    posts = db.session.execute(stmt).scalars().all()
     liked_posts_ids = []
     user_id  = g.user.id
     if user_id:
-        user = User.query.get(user_id)
+        user = db.session.execute(db.select(User).where(User.id == user_id)).scalar()
         if not user:
             return render_template('error.html', message="User not found"), 404
         liked_posts_ids = [liked.post_id for liked in user.liked_posts]
     else:
-        posts = Post.query.order_by(Post.created.desc()).all()
+        stmt = db.select(Post).order_by(Post.created.desc())
+        posts = db.session.execute(stmt).scalars().all()
         liked_posts_ids = []
 
     return render_template('blog/index.html', posts=posts, liked_posts=liked_posts_ids)
@@ -27,7 +30,8 @@ def index():
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
 def create():
-    tags = Tags.query.all() 
+    tags = db.session.execute(db.select(Tags)).scalars().all()
+
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
@@ -43,7 +47,7 @@ def create():
             post = Post(title=title, body=body, author_id=g.user.id)
 
             for tag_id in selected_tags:
-                tag = Tags.query.get(tag_id)
+                tag = db.session.execute(db.select(Tags).where(Tags.id == tag_id)).scalar()
                 if tag:
                     post.tags.append(tag) 
             db.session.add(post)
@@ -68,7 +72,7 @@ def get_post(id, check_author=True):
 @login_required
 def update(id):
     post = get_post(id)
-    tags = Tags.query.all()
+    tags = db.session.execute(db.select(Tags)).scalars().all()
 
     if request.method == 'GET':
         selected_tags = [tag.id for tag in post.tags]  # Load current tags for the post
@@ -87,7 +91,8 @@ def update(id):
         else:
             post.title = title
             post.body = body
-            post.tags = [Tags.query.get(int(tag_id)) for tag_id in selected_tags]
+            stmt = db.select(Tags).where(Tags.id.in_(selected_tags))
+            post.tags = db.session.execute(stmt).scalars().all()
             db.session.commit()
             return redirect(url_for('blog.index'))
 
@@ -110,16 +115,16 @@ def like(userid, postid):
     except ValueError:
         return jsonify({'error': 'User ID and Post ID must be integers'}), 400
     
-    user = User.query.get(userid)
-    post = Post.query.get(postid)
+    user = db.session.execute(db.select(User).where(User.id == userid)).scalar()
+    post = db.session.execute(db.select(Post).where(Post.id == postid)).scalar()
     
     if user is None:
         return jsonify({'error': "User doesn't exist"}), 404
     if post is None:
         return jsonify({'error': "Post doesn't exist"}), 404
     
-    liked_post = LikedPosts.query.filter_by(user_id=userid, post_id=postid).first()
-
+    stmt = db.select(LikedPosts).where(LikedPosts.user_id == userid, LikedPosts.post_id == postid)
+    liked_post = db.session.execute(stmt).scalar()
     if liked_post is None:
         post.likes += 1
         new_like = LikedPosts(user_id=userid, post_id=postid)
@@ -154,6 +159,6 @@ def add_tag():
 
 @bp.route('/tags', methods=['GET'])
 def get_tags():
-    tags = Tags.query.all()
+    tags = db.session.execute(db.select(Tags)).scalars().all()
     return render_template('blog/tag.html', tags=tags)
 
