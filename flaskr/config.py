@@ -6,7 +6,8 @@ load_dotenv()
 class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     #SQLALCHEMY_ECHO = True
-    
+    SECRET_KEY = "dev"  
+
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True

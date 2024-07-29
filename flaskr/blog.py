@@ -59,10 +59,8 @@ def create():
 def get_post(id, check_author=True):
     stmt = db.select(Post).join(User, Post.author_id == User.id).where(Post.id == id)
     post = db.session.execute(stmt).scalar()
-
     if post is None:
         abort(404, f"Post id {id} doesn't exist.")
-
     if check_author and post.author_id != g.user.id:
         flash("You don't have permission to update this post.")
 
