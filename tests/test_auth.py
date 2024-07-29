@@ -26,13 +26,14 @@ def test_register_validate_input(client, username, password, message, auth):
     response = auth.register(username, password)
     assert message in response.data
 
+
 def test_login(client, auth):
     response = auth.login()
     assert response.headers["Location"] == "/"
 
     with client:
         client.get('/')
-        assert session['id'] == 1
+        assert current_user.id == 1
         assert current_user.username== 'test'
 
 

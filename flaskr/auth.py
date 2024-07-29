@@ -74,7 +74,6 @@ def login():
             response = make_response(redirect(url_for('index')))
             # Set the JWT token as a cookie
             response.set_cookie('access_token_cookie', access_token, httponly=True)
-            print(response)
             return response
 
         flash(error)

@@ -85,7 +85,7 @@ def test_delete(client, auth, app):
 
 def test_like(client, auth, app):
     auth.login()
-    response = client.post('/1/1/like')
+    response = client.post('/1/like')
     assert response.headers["Location"] == "/"
 
     with app.app_context():
@@ -98,8 +98,8 @@ def test_like(client, auth, app):
 
 
 @pytest.mark.parametrize('path', (
-    '/1/1/like',
-    '/1/1/like'
+    '/1/like',
+    '/1/like'
 ))
 def test_like_unlike_post(client, auth, blog, path, app):
     auth.login()
@@ -109,7 +109,7 @@ def test_like_unlike_post(client, auth, blog, path, app):
     with app.app_context():
         stmt = db.select(Post.likes).where(Post.id == 1)
         likes = db.session.execute(stmt).scalar()
-        if path == '/1/1/like':
+        if path == '/1/like':
             assert likes == 11
         else:
             assert likes == 10
@@ -125,11 +125,11 @@ def test_like_button_text(client, auth):
     response = client.get('/')
     assert b'Like' in response.data
 
-    client.post('/1/1/like')
+    client.post('/1/like')
     response = client.get('/')
     assert b'Unlike' in response.data
 
-    client.post('/1/1/like')
+    client.post('/1/like')
     response = client.get('/')
     assert b'Like' in response.data
 
@@ -168,12 +168,12 @@ def full_test(client, auth, app):
     assert b'created' not in client.get('/').data
 
     client.post('/create', data={'title': 'created', 'body': 'this is a test'})
-    response = client.post('/1/1/like')
+    response = client.post('/1/like')
     assert response.headers["Location"] == "/"
     assert client.get('/').status_code == 200
     assert b'Like' in client.get('/').data
 
-    response = client.post('/1/1/like')
+    response = client.post('/1/like')
     assert response.headers["Location"] == "/"
     assert client.get('/').status_code == 200
     assert b'Unlike' in client.get('/').data
@@ -218,24 +218,20 @@ def test_blog_operations(auth, blog, app):
         assert db.session.execute(stmt).scalar() is None
        
         
-@pytest.mark.parametrize('userid, postid, is_logged_in, status_code', (
-    [1,1,1, 302],
-    [1,1,0, 403],
-    [50,1,1, 404],
-    [1,50,1, 404],    
-    [50,50,1, 404],
-    ["test","test",1, 400],
-    ["test",1,1, 400],
-    [1,"test",1, 400],
-    [50,50,0, 403],
+@pytest.mark.parametrize('postid, is_logged_in, status_code', (
+    [1,1, 302],
+    [1,0, 400],
+    [50,1, 404],
+    ["test",1, 400],
+    [50,0, 400],
 ))
 
-def test_parameterized(auth, blog, userid, postid, is_logged_in, status_code):
+def test_parameterized(auth, blog,  postid, is_logged_in, status_code):
     if is_logged_in == 1:
         auth.login()
 
     response = blog.create(title="Title", body="Body")
     if is_logged_in == 0:
         assert response.headers["Location"] == "/auth/login"
-    response = blog.like(userid, postid)
+    response = blog.like(postid)
     assert response.status_code == status_code

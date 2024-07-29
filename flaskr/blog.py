@@ -21,7 +21,6 @@ def index():
     stmt = db.select(Post).order_by(Post.created.desc())
     posts = db.session.execute(stmt).scalars().all()
     liked_posts_ids = []
-    print(current_user)
     user_id = current_user.id if current_user else None
     username = current_user.username if current_user else None
     if user_id:

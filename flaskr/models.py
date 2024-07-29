@@ -28,7 +28,7 @@ class Post(db.Model):
     author_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     author: Mapped["User"] = relationship(back_populates="posts")
 
-    liked_posts: Mapped[List["LikedPosts"]] = relationship(back_populates="post")
+    liked_posts: Mapped[List["LikedPosts"]] = relationship(back_populates="post",cascade="all, delete-orphan")
 
     tags: Mapped[List["Tags"]] = relationship(secondary= "tags_post", back_populates="post")
 
