@@ -79,7 +79,7 @@ class BlogActions(object):
     
     def like(self, postid=1, userid=1):
         return self._client.post(
-            f'/{userid}/{postid}/like', 
+            f'/{postid}/like', 
         )
     
 @pytest.fixture

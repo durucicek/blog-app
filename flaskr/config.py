@@ -6,7 +6,12 @@ load_dotenv()
 class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     #SQLALCHEMY_ECHO = True
-    SECRET_KEY = "dev"  
+    SECRET_KEY = "dev" 
+    JWT_SECRET_KEY = "super-secret" 
+    JWT_TOKEN_LOCATION = ["cookies"]
+    JWT_COOKIE_SECURE = False
+    JWT_ACCESS_COOKIE_PATH = "/"
+    JWT_COOKIE_CSRF_PROTECT = False
 
 class DevelopmentConfig(Config):
     DEVELOPMENT = True

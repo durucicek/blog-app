@@ -1,7 +1,9 @@
 import pytest
-from flask import g, session
+from flask import  session
 from flaskr.database import db
 from flaskr.models import User
+from flask_jwt_extended import current_user
+
 
 
 def test_register(client, app, auth):
@@ -31,7 +33,7 @@ def test_login(client, auth):
     with client:
         client.get('/')
         assert session['id'] == 1
-        assert g.user.username== 'test'
+        assert current_user.username== 'test'
 
 
 @pytest.mark.parametrize(('username', 'password', 'message'), (

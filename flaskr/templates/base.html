@@ -4,8 +4,8 @@
 <nav>
   <h1>Flaskr</h1>
   <ul>
-    {% if g.user %}
-      <li><span>{{ g.user['username'] }}</span>
+    {% if username  %}
+      <li><span>{{ username  }}</span>
       <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
       <li><a href="{{ url_for('blog.get_tags') }}">Tags</a></li>
 
