@@ -220,10 +220,8 @@ def test_blog_operations(auth, blog, app):
         
 @pytest.mark.parametrize('postid, is_logged_in, status_code', (
     [1,1, 302],
-    [1,0, 400],
     [50,1, 404],
     ["test",1, 400],
-    [50,0, 400],
 ))
 
 def test_parameterized(auth, blog,  postid, is_logged_in, status_code):

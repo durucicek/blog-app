@@ -6,14 +6,7 @@ from flaskr.models import User, Post, LikedPosts, Tags
 from flaskr.database import db
 from flask_jwt_extended import current_user, jwt_required
 
-
 bp = Blueprint('blog', __name__)
-
-@bp.route('/protected', methods=['GET'])
-@jwt_required()
-def protected():
-    # This will work if the JWT cookie is present
-    return jsonify(message="You have access to this protected route.")
 
 @bp.route('/')
 @jwt_required()
@@ -32,7 +25,6 @@ def index():
                            id=user_id, username=username)
 
 @bp.route('/create', methods=('GET', 'POST'))
-#@login_required
 @jwt_required()
 def create():
     tags = db.session.execute(db.select(Tags)).scalars().all()
@@ -66,7 +58,6 @@ def get_post(id, check_author=True):
     return post
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
-#@login_required
 @jwt_required()
 def update(id):
     post = get_post(id)
@@ -97,7 +88,6 @@ def update(id):
     return render_template('blog/update.html', post=post, tags=tags, selected_tags=selected_tags)
 
 @bp.route('/<int:id>/delete', methods=('POST',))
-#@login_required
 @jwt_required()
 def delete(id):
     post = get_post(id)
@@ -106,7 +96,6 @@ def delete(id):
     return redirect(url_for('blog.index'))
 
 @bp.route('/<postid>/like', methods=['POST'])
-#@login_required
 @jwt_required()
 def like(postid):
     try:
@@ -135,7 +124,6 @@ def like(postid):
     return redirect(url_for('blog.index'))
 
 @bp.route('/add-tag', methods=['POST'])
-#@login_required
 @jwt_required()
 def add_tag():
     tag_name = request.json.get('tag_name')
